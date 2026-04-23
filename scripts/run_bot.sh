@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${PROJECT_DIR:-/Users/samgold/Desktop/Проекты/coc_bots/coc_bot_work-v}"
-TELEGRAM_CONTROL_BACKEND="${TELEGRAM_CONTROL_BACKEND:-aiogram}"
-TELEGRAM_UI_MODE="${TELEGRAM_UI_MODE:-default}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+PANEL_HOST="${PANEL_HOST:-127.0.0.1}"
+PANEL_PORT="${PANEL_PORT:-8765}"
 BLUESTACKS_APP_NAME="${BLUESTACKS_APP_NAME:-BlueStacks}"
 BLUESTACKS_PROCESS_NAME="${BLUESTACKS_PROCESS_NAME:-BlueStacks}"
 ADB_BIN="${ADB_BIN:-/Applications/BlueStacks.app/Contents/MacOS/hd-adb}"
@@ -29,7 +30,6 @@ fatal() {
 while [[ "${1:-}" == -* ]]; do
   case "$1" in
     -test|--test)
-      TELEGRAM_UI_MODE="test"
       shift
       ;;
     *)
@@ -115,11 +115,7 @@ require_cmd pgrep
 
 [[ -x "$ADB_BIN" ]] || fatal "ADB binary not found or not executable: $ADB_BIN"
 [[ -d "$PROJECT_DIR" ]] || fatal "project directory not found: $PROJECT_DIR"
-if [[ "$TELEGRAM_CONTROL_BACKEND" == "aiogram" ]]; then
-  [[ -f "$PROJECT_DIR/telegram_control_aiogram.py" ]] || fatal "telegram_control_aiogram.py not found in: $PROJECT_DIR"
-else
-  [[ -f "$PROJECT_DIR/telegram_control.py" ]] || fatal "telegram_control.py not found in: $PROJECT_DIR"
-fi
+[[ -f "$PROJECT_DIR/control_panel.py" ]] || fatal "control_panel.py not found in: $PROJECT_DIR"
 
 if ! pgrep -x "$BLUESTACKS_PROCESS_NAME" >/dev/null 2>&1; then
   log "starting $BLUESTACKS_APP_NAME..."
@@ -139,10 +135,11 @@ fi
 launch_clash || true
 sleep "$APP_LAUNCH_WAIT"
 
-log "starting telegram control bot"
+log "starting local control panel"
 cd "$PROJECT_DIR"
-export TELEGRAM_UI_MODE
-if [[ "$TELEGRAM_CONTROL_BACKEND" == "aiogram" ]]; then
-  exec python3 telegram_control_aiogram.py
-fi
-exec python3 telegram_control.py
+export PANEL_HOST PANEL_PORT
+python3 control_panel.py &
+panel_pid=$!
+sleep 1
+open "http://$PANEL_HOST:$PANEL_PORT" >/dev/null 2>&1 || true
+wait "$panel_pid"

@@ -8,10 +8,11 @@
 
 ## Stack And Runtime
 - Primary stack: Python, aiogram, pyautogui, ADB, image-based automation.
-- Main entry points: `bot.py`, `telegram_control_aiogram.py`, `bot2.py`, `bot2_adb.py`.
+- Main entry points: `bot.py`, `telegram_control_aiogram.py`.
+- Preferred operator interface: local web control panel via `control_panel.py`.
 - Main bot loop lives in `bot.py`.
 - Telegram control panel lives in `telegram_control_aiogram.py`.
-- Runtime modules are split across `attack_runtime/*`, `bot_runtime/*`, `bot2_runtime/*`, and `bot2_adb_runtime/*`.
+- Runtime modules are split across `attack_runtime/*` and `bot_runtime/*`.
 
 ## Important Business Logic
 - The main farming loop waits for home, searches for a target, validates battle-ready state, filters loot, deploys, surrenders, returns home, increments attack count, and periodically checks storages.

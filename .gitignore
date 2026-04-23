@@ -9,3 +9,4 @@ node_modules/
 .digit_templates/
 release_reports/
 $HOME/
+dist/

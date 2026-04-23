@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${PROJECT_DIR:-/Users/samgold/Desktop/Проекты/coc_bots/coc_bot_work-v}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 STOP_WAIT_SECONDS="${STOP_WAIT_SECONDS:-8}"
 
 log() {
@@ -31,22 +32,12 @@ done < <(pgrep -f "$PROJECT_DIR/telegram_control.py" 2>/dev/null || true)
 while IFS= read -r pid; do
   [[ -n "$pid" ]] || continue
   all_pids+=("$pid")
-done < <(pgrep -f "$PROJECT_DIR/telegram_control_aiogram.py" 2>/dev/null || true)
+done < <(pgrep -f "$PROJECT_DIR/control_panel.py" 2>/dev/null || true)
 
 while IFS= read -r pid; do
   [[ -n "$pid" ]] || continue
   all_pids+=("$pid")
 done < <(pgrep -f "$PROJECT_DIR/bot.py" 2>/dev/null || true)
-
-while IFS= read -r pid; do
-  [[ -n "$pid" ]] || continue
-  all_pids+=("$pid")
-done < <(pgrep -f "$PROJECT_DIR/bot2.py" 2>/dev/null || true)
-
-while IFS= read -r pid; do
-  [[ -n "$pid" ]] || continue
-  all_pids+=("$pid")
-done < <(pgrep -f "$PROJECT_DIR/bot2_adb.py" 2>/dev/null || true)
 
 if (( ${#all_pids[@]} == 0 )); then
   log "no running bot processes found"

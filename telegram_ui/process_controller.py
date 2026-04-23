@@ -1,4 +1,6 @@
 
+from __future__ import annotations
+
 import os
 import signal
 import subprocess
@@ -6,28 +8,28 @@ import sys
 import time
 
 class BotProcessController:
-    def __init__(self):
-        self.process = None
-        self.pid = None
+    def __init__(self) -> None:
+        self.process: subprocess.Popen[bytes] | None = None
+        self.pid: int | None = None
         self.pid_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.bot_process.pid')
         self._load_pid_from_file()
 
-    def _pid_is_alive(self, pid):
+    def _pid_is_alive(self, pid: int) -> bool:
         try:
             os.kill(pid, 0)
             return True
         except OSError:
             return False
 
-    def _save_pid_to_file(self, pid):
+    def _save_pid_to_file(self, pid: int) -> None:
         with open(self.pid_file, 'w', encoding='utf-8') as pid_handle:
             pid_handle.write(str(pid))
 
-    def _clear_pid_file(self):
+    def _clear_pid_file(self) -> None:
         if os.path.exists(self.pid_file):
             os.remove(self.pid_file)
 
-    def _load_pid_from_file(self):
+    def _load_pid_from_file(self) -> None:
         if not os.path.exists(self.pid_file):
             return
 
@@ -43,12 +45,12 @@ class BotProcessController:
         self.pid = None
         self._clear_pid_file()
 
-    def _cleanup_dead_state(self):
+    def _cleanup_dead_state(self) -> None:
         self.process = None
         self.pid = None
         self._clear_pid_file()
 
-    def _running_pid(self):
+    def _running_pid(self) -> int | None:
         if self.process is not None:
             if self.process.poll() is None:
                 self.pid = self.process.pid
@@ -65,10 +67,13 @@ class BotProcessController:
         self._cleanup_dead_state()
         return None
 
-    def is_running(self):
+    def is_running(self) -> bool:
         return self._running_pid() is not None
 
-    def _terminate_by_pid(self, pid):
+    def running_pid(self) -> int | None:
+        return self._running_pid()
+
+    def _terminate_by_pid(self, pid: int) -> None:
         if os.name == 'nt':
             os.kill(pid, signal.SIGTERM)
         else:
@@ -92,7 +97,7 @@ class BotProcessController:
             except OSError:
                 os.kill(pid, hard_signal)
 
-    def start(self, mode='normal'):
+    def start(self, mode: str = 'normal') -> tuple[bool, str]:
         running_pid = self._running_pid()
         if running_pid is not None:
             return False, f'Скрипт уже запущен (PID {running_pid}).'
@@ -111,7 +116,7 @@ class BotProcessController:
         self._save_pid_to_file(self.pid)
         return True, f'Скрипт запущен (PID {self.pid}).'
 
-    def stop(self):
+    def stop(self) -> tuple[bool, str]:
         running_pid = self._running_pid()
         if running_pid is None:
             return False, 'Скрипт уже остановлен.'
@@ -131,13 +136,13 @@ class BotProcessController:
         self._cleanup_dead_state()
         return True, 'Скрипт остановлен.'
 
-    def status(self):
+    def status(self) -> str:
         running_pid = self._running_pid()
         if running_pid is not None:
             return f'Статус: работает (PID {running_pid}).'
         return 'Статус: остановлен.'
 
-    def consume_exit_event(self):
+    def consume_exit_event(self) -> str | None:
         if self.process is not None:
             return_code = self.process.poll()
             if return_code is None:

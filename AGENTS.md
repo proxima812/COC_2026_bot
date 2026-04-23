@@ -6,9 +6,9 @@ Your job is to make precise, minimal, production-ready changes without breaking 
 
 ## Project Context
 - Stack: Python, aiogram, pyautogui, ADB, image-based automation
-- Main entry points: `bot.py`, `telegram_control_aiogram.py`, `bot2.py`, `bot2_adb.py`
+- Main entry points: `bot.py`, `telegram_control_aiogram.py`
 - Shared persistent operator state: `runtime_state.py`
-- Main runtime slices: `attack_runtime/*`, `bot_runtime/*`, `bot2_runtime/*`, `bot2_adb_runtime/*`
+- Main runtime slices: `attack_runtime/*`, `bot_runtime/*`
 - Telegram UI flow: `telegram_control_aiogram.py`, `telegram_ui/*`, `telegram_reporter.py`
 
 ## Primary Workflow

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${PROJECT_DIR:-/Users/samgold/Desktop/Проекты/coc_bots/coc_bot_work-v}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 
 fatal() {
   printf '[run farm] error: %s\n' "$*" >&2
