@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+node_modules/
+.bot_runtime_state.json
+.bot_process.pid
+.env
+.digit_templates/
+release_reports/
+$HOME/
